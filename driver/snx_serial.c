@@ -943,7 +943,7 @@ static int snx_ser_set_info(struct snx_ser_state *state, struct serial_struct *n
 	struct serial_struct new_serial;
 	struct snx_ser_port *port = state->port;
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 9, 0))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 9, 0)) && (LINUX_VERSION_CODE < KERNEL_VERSION(5,12,0))
 	struct tty_port		*tport = &state->tport;
 #endif
 
@@ -1037,17 +1037,14 @@ static int snx_ser_set_info(struct snx_ser_state *state, struct serial_struct *n
 	state->closing_wait    = closing_wait;
 	port->fifosize         = new_serial.xmit_fifo_size;
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 9, 0))
-
-#if (LINUX_VERSION_CODE<KERNEL_VERSION(5,12,0))
-    qp->port.low_latency = 1;	tport->low_latency = (port->flags & SNX_UPF_LOW_LATENCY) ? 1 : 0;
-#endif
-
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 9, 0)) && (LINUX_VERSION_CODE < KERNEL_VERSION(5,12,0))
+	tport->low_latency = (port->flags & SNX_UPF_LOW_LATENCY) ? 1 : 0;
 #else
-
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 9, 0))
 	if (state->info->tty) {
 		state->info->tty->low_latency = (port->flags & SNX_UPF_LOW_LATENCY) ? 1 : 0;
 	}
+#endif
 #endif
 
 
@@ -3385,12 +3382,12 @@ static int snx_ser_open(struct tty_struct *tty, struct file *filp)
 		state->port->suspended = 1;
 		tty->driver_data = state;
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 9, 0))
-#if (LINUX_VERSION_CODE<KERNEL_VERSION(5,12,0))
-        qp->port.low_latency = 1;		tport->low_latency = (state->port->flags & SNX_UPF_LOW_LATENCY) ? 1 : 0;
-#endif
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 9, 0)) && (LINUX_VERSION_CODE < KERNEL_VERSION(5,12,0))
+		tport->low_latency = (state->port->flags & SNX_UPF_LOW_LATENCY) ? 1 : 0;
 #else
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 9, 0))
 		tty->low_latency = (state->port->flags & SNX_UPF_LOW_LATENCY) ? 1 : 0;
+#endif
 #endif
 
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 12, 0))

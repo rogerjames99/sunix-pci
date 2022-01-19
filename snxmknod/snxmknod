@@ -1,0 +1,55 @@
+#*
+#*                                                                                      	
+#*                        SUNIX Device Node Build Script                         
+#*                                                                                      
+#*           Copyright 2006 - 2011  SUNIX Co., Ltd. all right reserved                                                                  
+#*                                                                                       
+#*                                                              Version: 1.3.1.0           	
+#*                                                              Date: 2010/12/15
+#*
+#!/bin/bash
+echo "Build tty file node (ttySNX0 ~ ttySNX31)"
+
+port=0
+
+while [ $port -lt 33 ]
+do
+	rm -f /dev/ttySNX$port
+	rm -f /dev/cnx$port
+
+  	echo /dev/ttySNX$port 	
+
+  	mknod /dev/ttySNX$port c 245 $port
+
+	chmod a+w /dev/ttySNX$port
+	
+	port=`expr $port + 1`
+done
+
+echo " "
+echo "Build parport file node (lp2 ~ lp3)"
+
+port=2
+
+while [ $port -lt 4 ]
+do
+	
+		if [ -w /dev/lp$port ] ; then
+			echo "lp$port for SUNIX driver aleady exist !"			
+		else
+  			echo /dev/lp$port 	
+  			mknod /dev/lp$port c 246 $port
+			chmod a+w /dev/lp$port		
+		fi	
+			
+	
+		if [ -w /dev/parport$port ] ; then
+			echo "parport$port for SUNIX driver aleady exist !"			
+		else
+  			echo /dev/parport$port 	
+  			mknod /dev/parport$port c 247 $port
+			chmod a+w /dev/parport$port		
+		fi		
+	
+	port=`expr $port + 1`
+done

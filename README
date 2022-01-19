@@ -1,0 +1,610 @@
+==========================================================================================
+=                                                                                        =
+=                  SUNIX Multi-I/O Board Driver Installation Guide                       =
+=                                                                                        =
+=                           For Kernel 2.4 & 2.6 & 3.x & 4.x & 5.x                       =
+=             Copyright 2006 - 2018  SUNIX Co., Ltd. all right reserved                  =
+=                                                                   Version: 2.0.6.0     =
+=                                                                   Date: 2021/11/26     =
+==========================================================================================
+
+Item
+
+A. Release note
+
+B. Introduction
+
+C. Installation
+
+   C.1 Driver install
+   C.2 Device node creation
+	
+D. Loading driver automatic after system bootup
+   
+   D.1 
+    RedHat 8
+    Fedora Core 1
+    Fedora Core 8
+    Fedora Core 10
+    Fedora Core 11
+    Mandriva 2008
+       		
+   D.2 
+    Suse 9.3
+    SuSE 11.2 Milestone 4
+    
+   D.3 
+    Ubutu 8.04 Destop
+    Ubutun 11.10
+		debian 6.0.3
+		
+   D.4 
+    Turbo Liunx 10
+    Red Hat Enterprise Liunx 4.0 	
+       
+   D.5 
+    Others	
+
+E. Utility
+
+   E.1  snxdump
+   E.2	snxterm
+
+F. Troubleshooting   
+
+==========================================================================================
+
+A. Release note
+	
+	2006/07/10 - Ver:1.0.2.0
+		1) Add snxterm program into driver package
+		2) Fix read fcr register in driver and backup a fcr register value in struct
+		3) Test RedHat Enterprise Linux AS 4.0 and ES 4.0
+		
+	2006/10/02 - Ver:1.0.3.0
+		1) Add GNU information in driver
+		2) Test SlackWare 10.2 (kernel 2.6.13)
+		3) Support 4027D, 4037D and 4056D
+
+	2006/10/12 - Ver:1.0.4.0
+		1) Fix system hanged. Modem interrupt can't be cleared by reading iir and msr
+		   register for SUN1699 chip
+
+	2006/12/01 - Ver:1.0.5.0
+		1) Fix system hanged. Data coming but device node didn't opened, when open, system 
+		   maybe crash
+		2) Add version information in /var/log/messages
+		3) Test TurboLinux 10
+	
+	2007/03/31 - Ver:1.0.6.0
+		1) Fix data receiving function
+		2) Modify ioctl function for dump port informations
+
+	2007/08/08 - Ver:1.0.7.0
+		1) Support kernel up to 2.6.22
+		2) Add driver version information in snxdump
+		3) snxterm upgrade to V1.0.1.0, make snxterm simply
+
+	2007/09/14 - Ver:1.0.8.0
+		1) Support kernel 2.6 and 2.4 both
+		2) snxterm upgrade to V1.0.2.0
+		
+	2008/05/12 - Ver:1.0.9.0
+		1) Fix setserial command fail
+		2) Support sunix series multi I/O board
+		
+	2008/09/05 - Ver:1.1.0.0
+		1) snxdump upgrade to V1.0.2.0
+	
+	2009/03/24 - Ver:1.1.1.0
+		1) Support kernel up to 2.6.27		
+
+	2009/04/03 - Ver:1.2.0.0
+		1) Support both golden and matrix series
+		2) Support kernel up to 2.6.28 and 2.4.37
+		3) snxdump upgrade to V1.2.0.0	
+		4) snxmknod upgrade to V1.2.0.0
+		
+	2009/04/06 - Ver:1.2.1.0
+		1) snxdump upgrade to V1.2.1.0	
+		2) snxterm upgrade to V1.0.3.0		
+		
+	2009/08/30 - Ver:1.3.0.0
+		1) Support golden / matrix / sun1999 series
+		2) Support kernel up to 2.6.30 and 2.4.37
+    		3) Delete #include<form.h> in /snxterm/snxterm.c 
+  
+  	2009/12/01 - Ver:1.3.1.0
+		1) Support kernel up to 2.6.31 
+		
+	2010/12/15 - Ver:1.3.2.0
+		1) Support Cash Drawer / 3-in-1 / DIO series   
+		2) snxmknod upgrade to V1.3.1.0
+		3) snxdump upgrade to Version: 1.2.2.0
+		4) Support kernel up to 2.6.36 
+		
+	2011/07/29 - Ver:1.3.3.0
+		1) Support kernel up to 2.6.38  
+		2) Upgrade SNX_UART_GET_TYPE function
+		3) Upgrade SNX_UART_SET_TYPE function
+		4) Support SNX_UART_GET_ACS function	
+		4) Support SNX_UART_SET_ACS function 
+		
+	2011/12/28 - Ver:2.0.0.0
+		1) Support kernel up to 2.6.39 
+		2) Support kernel up to 3.1.0  
+		
+	2012/03/28 - Ver:2.0.1.0
+		1) Fix statserial command errors. statserial command does not display CTS & DSR status.
+
+	2012/08/17 - Ver:2.0.1.1
+		1) Add requirement package information in README file
+
+	2013/01/25 - Ver:2.0.2.0
+		1) Support kernel up to 3.6.10	
+		
+	2013/09/15 - Ver:2.0.3.0
+		1) Support kernel up to 3.11.x	
+		2) snxdump upgrade to V1.2.3.0
+		
+	2015/06/09 - Ver:2.0.4.0
+		1) Support kernel up to 3.19.x	
+
+    2015/07/24 - Ver:2.0.4.1
+		1) Support Kernel up to 3.19.8 	
+
+	2016/06/20 - Ver:2.0.4.2
+		1) Support Kernel up to 4.6.x
+
+	2017/11/21 - Ver:2.0.4.3
+		1) Support Kernel up to 4.13.x	
+		
+	2018/05/11 - Ver:2.0.4.4
+		1) Support Kernel up to 4.15.18		
+		
+	2018/05/11 - Ver:2.0.4.4
+		1) Support Kernel up to 4.15.18		
+	
+	2019/04/01 - Ver:2.0.4.5
+		1) Fix SER5416 data r/w errors	
+		
+	2019/12/20 - Ver:2.0.5.0
+		1) Support Kernel up to 5.3.x	
+
+	2021/11/26 - Ver:2.0.6.0
+		1)Modify driver initialization function for obtain valid IRQ number.
+		
+------------------------------------------------------------------------------------------
+
+B. Introduction
+
+	Maximum 4 boards can be installed in combination(up to 32 serial port and 2 parallel port), 
+	support sunix multi i/o boards as list below.
+
+	(S - serial port, P - parallel port)	
+				
+	
+	RS-422/485 Series
+	
+	2S -
+		IPC-B2102SI
+		IPC-B2102		
+		IPC-P2102L
+		IPC-P2102LI
+		IPC-P2102SI
+		IPC-E2202LI
+		IPC-E2202S
+		IPC-E2202SI
+		IPC-E2202SL
+		IPC-M2202S
+		IPC-M2202SR		
+		
+	4S -
+		IPC-P2104
+		IPC-P2104SI
+		IPC-E2204S
+		IPC-E2204SI
+		IPC-M2204S
+		IPC-M2204SR		
+		
+	8S -
+		IPC-P2108
+		IPC-P2108SI
+		IPC-E2108S		
+		
+	16S -
+		IPC-P2116
+
+	RS-232 Series
+		
+	1S -
+		SER5027A
+		SER5027AL
+		SER5027D
+		SER5027DL
+		SER5027H
+		SER5027HL
+		SER5027U
+		SER5027UH
+		SER5027UL
+		SER5027P
+		SER5027PH
+		SER5027PHL
+		SER5027PL
+		SER6427A
+		SER6427AL
+		SER6427P
+		SER6427PH
+		SER6427PHL
+		SER6427PL
+		SER6427S
+	
+	2S -	
+		SER5037A
+		SER5037AL		
+		SER5037D
+		SER5037H
+		SER5037HL
+		SER5037U
+		SER5037UH
+		SER5037UL
+		SER5037P
+		SER5037PH
+		SER5037PHL
+		SER5037PL
+		SER6437A
+		SER6437AL
+		SER6437H
+		SER6437HL
+		SER6437P
+		SER6437PH
+		SER6437PHL
+		SER6437PL
+		SER6437S
+		SER5337A
+		M2S6437A
+		M2S6437AR
+		DEL2S00PL		
+		
+	4S -
+		SER5056A
+		SER5056AL
+		SER5056H
+		SER5056HL
+		SER5056U
+		SER5056UH
+		SER5056UHL
+		SER5056UL
+		SER5056P
+		SER5056PH
+		SER5056PHL
+		SER5056PL
+		SER6456A
+		SER6456AL
+		SER6456H
+		SER6456HL
+		SER6456P
+		SER6456PH
+		SER6456PHL
+		SER6456PL
+		SER6456S
+		SER6456SH
+		SER6456SL
+		SER5356A
+		SER5366A
+		MCS6456P
+		M2S6456A
+		M2S6456AR
+		DEL4S00P
+		
+	8S -
+		SER5066A
+		SER5066AL
+		SER5066H
+		SER5066HL
+		SER5066U
+		SER5066UH
+		SER5066UHL
+		SER5066UL
+		SER5466A
+		SER5466AL
+		SER5466H
+		SER5466HL
+		
+	16S -	
+		SER5016H
+		SER5416H		
+				
+        Parallel Port Series
+	
+	1P -
+		PAR5008A
+		PAR5008AL
+		PAR5008R
+		PAR5008RL		
+		PAR6408A
+		PAR6408AL
+		
+	2p -
+		PAR5018A
+		PAR5018AL	
+		PAR5418A
+		PAR5418AL
+		
+	Multi-IO Series
+	
+	1S1P -
+		MIO5069A
+		MIO5069H
+		MIO5069P
+		MIO5069PH
+		MIO5069U
+		MIO5069UH
+		MIO5069UL		
+		MIO6469A
+		MIO6469AL
+		MIO6469H
+		MIO6469HL
+		MIO6469P
+		MIO6469PH
+		MIO6469PHL
+		MIO6469PL
+		MIO6469S
+		MIO6469SH
+		MIO6469SHL
+		MIO6469SL
+		
+	2S1P -
+		MIO5079A
+		MIO5079AL
+		MIO5079H
+		MIO5079HL
+		MIO5079U
+		MIO5079UH
+		MIO5079UL	
+		MIO6479A
+		MIO6479AL
+		MIO6479H
+		MIO6479HL
+		MIO6479P
+		MIO6479PH
+		MIO6479PHL
+		MIO6479PL
+		MIO6479S
+		MIO6479SH
+		MIO6479SHL
+		MIO6479SL
+		
+	2S2P -
+		MIO4089AM
+				
+	4S1P - 
+		MIO5099A
+		MIO5099H
+		MIO5499A
+		MIO5499H		
+		
+	Cash Drawer -
+		
+		CDK1037A
+		CDK1037N		
+		CDK1056P
+		CDK1056PL			
+		CDK1456P
+		CDK1456PL	
+
+------------------------------------------------------------------------------------------
+
+C. Installation
+
+		Before driver installation. Make sure system with c compiler/kernel development/ncurses package.
+	
+	C.1 Driver install
+		Please create a directory under root directory,  e.g /temp, do commands:
+
+		# cd /
+		# mkdir temp
+
+		After get driver file "snx_Vx.x.x.x.tar.gz". Copy file to /temp
+		directory, then extract and install, do commands:
+
+		# cp snx_Vx.x.x.x.tar.gz /temp 
+		# cd /temp
+		# tar xvf snx_Vx.x.x.x.tar.gz
+		# cd /temp/snx
+		# make clean ; make install
+
+		*************************************************************
+		* If system is Suse 9.0 and errors occur when               *
+		* "make clean ; make install", do commands:                 *
+		*                                                           *
+		* # cd /usr/src/linux/                                      *
+		* # make cloneconfig                                        *
+		* # make dep                                                * 
+		*                                                           *
+		* then do "make clean ; make install" again in /temp/snx    *
+		*************************************************************
+
+		Load driver module, do command:
+
+		# modprobe snx
+		or
+		# insmod /temp/snx/driver/snx.ko (snx.o for kernel 2.4)
+
+
+		Check driver module, do command:
+		# lsmod | grep snx
+
+
+		Unload driver, do command:
+		# rmmod snx
+
+
+	C.2 Device node creation 
+		Each serial port has one device node which is named "ttySNX?",
+		maximum up to 32 serial ports.
+		
+		Each parallel port has two device node which is name "lp?" and
+		"parport?". This step will backup lp2~lp3 and parport2~parport3 
+		to lp?.bak and parport?.bak in /dev for your system first. Then,
+		create lp2~lp3 and parport2~parport3 in /dev for sunix driver,
+		maximum up tp 2 parallel ports.
+		
+		This setp will be done when do "make clean ; make install", if
+		device nodes aren't in /dev, do commands:
+				
+		# cd /temp/snx/snxmknod
+		# ./snxmknod
+
+		This will create device nodes in /dev.
+
+		If there are more than two boards installed, serial port device
+		nameing convention please refer to E1.
+
+------------------------------------------------------------------------------------------
+
+D. Loading driver automatic after system bootup
+
+  	
+	D.1 
+	    After finish item C. Edit /etc/rc.d/rc.local for loading driver 
+	    automatic after system bootup. Use vi or other editor to open rc.local, 
+	    and add "modprobe snx" in last line.
+
+
+	D.2 
+	    After finish item C.
+	    Edit /etc/rc.d/boot.local for loading driver automatic after system bootup. 
+	    Use vi or other	editor to open boot.local, and add "modprobe snx" in last line.
+	    Edit /etc/rc.d/halt.lAfter finish item D. Edit /etc/rc.d/rc.local for loading driver 
+	    automatic after system bootup. Use vi or other editor to open rc.local, 
+	    and add "modprobe snx" in last line.ocal for unloading driver when system halt. 
+	    Use vi or other editor to open halt.local, and add "rmmod snx" in last line.
+	    
+	    
+	D.3 
+	    After finish item C. Edit /etc/init.d/rc.local for loading driver 
+	    automatic after system bootup. Use vi or other editor to open rc.local, 
+	    and add words as below in last line.
+
+			mv /dev/lp2 /dev/lp2.bak
+			mv /dev/lp3 /dev/lp3.bak
+			mknod /dev/lp2 c 246 2
+			mknod /dev/lp3 c 246 3
+			chmod a+w /dev/lp2
+			chmod a+w /dev/lp3
+	
+			mv /dev/parport2 /dev/parport2.bak
+			mv /dev/parport3 /dev/parport3.bak
+			mknod /dev/parport2 c 247 2
+			mknod /dev/parport3 c 247 3
+			chmod a+w /dev/parport2
+			chmod a+w /dev/parport3
+				
+			modprobe snx
+
+		
+	D.4 
+	    After finish item C. Edit /etc/rc.d/rc.local for loading driver 
+	    automatic after system bootup. Use vi or other editor to open rc.local, 
+	    and add words as below in last line. 
+
+			
+			mv /dev/lp2 /dev/lp2.bak
+			mv /dev/lp3 /dev/lp3.bak
+			mknod /dev/lp2 c 246 2
+			mknod /dev/lp3 c 246 3
+			
+			mv /dev/parport2 /dev/parport2.bak
+			mv /dev/parport3 /dev/parport3.bak
+			mknod /dev/parport2 c 247 2
+			mknod /dev/parport3 c 247 3
+		
+			modprobe snx
+		
+		
+	D.5 
+	    In general, other distributions will loading driver automatic after system bootup.		
+	    If it doesn't, please refer to item D.1 or D.2. or D.3 or D.4
+				
+				
+------------------------------------------------------------------------------------------
+
+E. Utility
+
+	E1. snxdump - dump port informations, do command:
+
+		# snxdump
+
+		the informations should be like this
+
+		================ Found  2 SUNIX port , list informations ====================
+        		                                     SUNIX driver ver -- 2.0.6.0
+
+		ttySNX0 --
+		SUNIX 5037 Series (bus:2 device: 1) , base address = a000,    irq = 21
+
+		ttySNX1 --
+		SUNIX 5037 Series (bus:2 device: 1) , base address = a008,    irq = 21
+		
+
+		=============================================================================
+
+
+		In this case, 
+
+		Driver version is 2.0.6.0
+
+		ttySNX0 is the 1st serial port on sunix 5037 series board, 
+		base address is 0xa000 and irq is 21.
+
+		ttySNX1 is the 2nd serial port on sunix 5037 series board, 
+		base address is 0xa008 and irq is 21.		
+
+		bus:2 means the bus number of board is 2.
+		
+		device:1 means the device number of board is 1.
+
+
+		If no information print on screen. Make sure the device node
+		exist in /dev and driver module loaded.
+		
+		
+	E2. snxterm - dumb terminal for test tty device node data transmitting and receiving
+		      , do command:
+
+		# snxterm
+
+------------------------------------------------------------------------------------------
+
+F.Troubleshooting
+
+	Q1:I Plug in the parallel port card and installed the device driver, I dumped the parallel port
+  	   iformation make sure the module was loaded, but I couldn't find the device by device list 
+	   when adding a new printer.
+
+	A:Following these step:
+
+  	  1.remove IO Card Driver:
+
+    		# rmmod snx
+				
+  	  2.remove device node lpX and parportX(X = the device node which mapping with IO Card): 
+    		
+		# rm /dev/lpX 
+ 		# rm /dev/parportX
+
+  	  3.reinstall IO Card Driver:
+    		
+		# make clean
+		# make install
+		
+  	  4.load the snx module:
+
+    	# modprobe snx
+
+  	  5.dump IO Card Information:
+		
+		# snxdump
+
+  	  6.Add new printer

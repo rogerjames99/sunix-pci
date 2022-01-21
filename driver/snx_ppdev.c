@@ -368,11 +368,12 @@ static int snx_pp_ioctl(struct inode *inode, struct file *file, unsigned int cmd
 
 		case SNX_PPCLAIM:
 	    {
+            printk("SNX_PPCLAIM\n");
 			struct ieee1284_info *info;
 			int ret;
 
 			if (pp->flags & SNX_PP_CLAIMED) {
-				printk("SNX Warng: %x you've already got it!\n", minor);
+				printk("SNX Warning: %x you've already got it!\n", minor);
 				return -EINVAL;
 			}
 

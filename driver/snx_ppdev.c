@@ -1,4 +1,5 @@
 #include "snx_ppdev.h"
+#include <linux/time.h>
 
 #define SNX_PARPORT_MAX 4
 #define SNX_CHRDEV "sppdev"
@@ -253,7 +254,7 @@ static ssize_t snx_pp_write(struct file *file, const char *buf, size_t count, lo
 	return bytes_written;
 }
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 36)
+//#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 36)
 static void snx_pp_irq(int irq, void *private, struct pt_regs *nouse)
 {
 	struct snx_pp_struct *pp = (struct snx_pp_struct *) private;
@@ -266,10 +267,10 @@ static void snx_pp_irq(int irq, void *private, struct pt_regs *nouse)
 	atomic_inc(&pp->irqc);
 	wake_up_interruptible(&pp->irq_wait);
 }
-#endif
+//#endif
 
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 36)
+//#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 36)
 static int snx_register_device(int minor, struct snx_pp_struct *pp)
 {
 	struct snx_parport *port;
@@ -306,7 +307,7 @@ static int snx_register_device(int minor, struct snx_pp_struct *pp)
 	pp->pdev = pdev;
 	return 0;
 }
-#endif
+//#endif
 
 static enum ieee1284_phase snx_init_phase(int mode)
 {
@@ -319,7 +320,7 @@ static enum ieee1284_phase snx_init_phase(int mode)
 	return IEEE1284_PH_FWD_IDLE;
 }
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 36)
+//#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 36)
 static int snx_pp_ioctl(struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg)
 {
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 0))
@@ -581,7 +582,7 @@ static int snx_pp_ioctl(struct inode *inode, struct file *file, unsigned int cmd
 		unsigned char mask;
 		int mode;
 		int ret;
-		struct timeval par_timeout;
+		struct __kernel_old_timeval par_timeout;
 		long to_jiffies;
 
 		case SNX_PPRSTATUS:
@@ -802,9 +803,9 @@ static int snx_pp_ioctl(struct inode *inode, struct file *file, unsigned int cmd
 		case SNX_PPSETTIME:
 		{
 #if (LINUX_VERSION_CODE > KERNEL_VERSION(2, 4, 26))
-			if (copy_from_user(&par_timeout, argp, sizeof(struct timeval)))
+			if (copy_from_user(&par_timeout, argp, sizeof(struct __kernel_old_timeval)))
 #else
-			if (copy_from_user(&par_timeout, (struct timeval *)arg, sizeof(struct timeval)))
+			if (copy_from_user(&par_timeout, (struct __kernel_old_timeval *)arg, sizeof(struct __kernel_old_timeval)))
 #endif
 			{
 				return -EFAULT;
@@ -833,9 +834,9 @@ static int snx_pp_ioctl(struct inode *inode, struct file *file, unsigned int cmd
 			par_timeout.tv_usec = (to_jiffies % (long)HZ) * (1000000/HZ);
 
 #if (LINUX_VERSION_CODE > KERNEL_VERSION(2, 4, 26))
-			if (copy_to_user(argp, &par_timeout, sizeof(struct timeval)))
+			if (copy_to_user(argp, &par_timeout, sizeof(struct __kernel_old_timeval)))
 #else
-			if (copy_to_user((struct timeval *)arg, &par_timeout, sizeof(struct timeval)))
+			if (copy_to_user((struct __kernel_old_timeval *)arg, &par_timeout, sizeof(struct __kernel_old_timeval)))
 #endif
 			{
 				return -EFAULT;
@@ -854,7 +855,8 @@ static int snx_pp_ioctl(struct inode *inode, struct file *file, unsigned int cmd
 
 	return 0;
 }
-#else
+
+
 static long snx_dump_par_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
 	unsigned int minor = 0;
@@ -915,7 +917,6 @@ static long snx_dump_par_ioctl(struct file *file, unsigned int cmd, unsigned lon
 	}
 	return 0;
 }
-#endif
 
 static int snx_pp_open(struct inode *inode, struct file *file)
 {
@@ -1206,4 +1207,3 @@ void sunix_par_ppdev_exit(void)
 
 	unregister_chrdev(SNX_PPD_MAJOR, SNX_CHRDEV);
 }
-

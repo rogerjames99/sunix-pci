@@ -559,7 +559,7 @@ static int snx_lp_ioctl(struct inode *inode, struct file *file, unsigned int cmd
 	}
 
 		switch (cmd) {
-		struct timeval par_timeout;
+		struct __kernel_old_timeval par_timeout;
 		long to_jiffies;
 
 		case SNX_LPTIME:
@@ -676,9 +676,9 @@ static int snx_lp_ioctl(struct inode *inode, struct file *file, unsigned int cmd
 
 		case SNX_LPSETTIMEOUT:
 #if (LINUX_VERSION_CODE > KERNEL_VERSION(2, 4, 26))
-			if (copy_from_user(&par_timeout, argp, sizeof (struct timeval)))
+			if (copy_from_user(&par_timeout, argp, sizeof (struct __kernel_old_timeval)))
 #else
-			if (copy_from_user(&par_timeout, (struct timeval *) arg, sizeof (struct timeval)))
+			if (copy_from_user(&par_timeout, (struct __kernel_old_timeval *) arg, sizeof (struct __kernel_old_timeval)))
 #endif
 			{
 				return -EFAULT;
@@ -1016,4 +1016,3 @@ void sunix_par_lp_exit(void)
 	class_destroy(snx_lp_class);
 #endif
 }
-

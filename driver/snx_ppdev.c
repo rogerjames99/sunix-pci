@@ -339,20 +339,23 @@ static int snx_pp_ioctl(struct inode *inode, struct file *file, unsigned int cmd
 #endif
         struct snx_pp_struct *pp = file->private_data;
         struct snx_parport *port;
+#if (LINUX_VERSION_CODE > KERNEL_VERSION(2, 4, 26))
+        void __user *argp = (void __user *)arg;
+#endif
 #else
 static long snx_pp_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
         struct snx_pp_struct *pp = file->private_data;
         struct snx_parport *port;
+#if (LINUX_VERSION_CODE > KERNEL_VERSION(2, 4, 26))
+        void __user *argp = (void __user *)arg;
+#endif
         unsigned int minor;
         if (0 > (minor = get_minor_device(arg)))
             return minor;
         minor = minor - 2;
 #endif
 
-#if (LINUX_VERSION_CODE > KERNEL_VERSION(2, 4, 26))
-        void __user *argp = (void __user *)arg;
-#endif
         printk("snx_pp_ioctl %04x\n", cmd);
         switch (cmd) {
         case SNX_PAR_DUMP_PORT_INFO:
@@ -387,9 +390,10 @@ static long snx_pp_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 
         case SNX_PPCLAIM:
         {
-                printk("SNX_PPCLAIM\n");
                 struct ieee1284_info *info;
                 int ret;
+
+                printk("SNX_PPCLAIM\n");
 
                 if (pp->flags & SNX_PP_CLAIMED) {
                         printk("SNX Warning: %x you've already got it!\n", minor);

@@ -340,10 +340,11 @@ static long snx_pp_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 #endif
 
         #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 0))
-                unsigned int minor = iminor(inode);
+        unsigned int minor = iminor(inode);
         #else
-                unsigned int minor = MINOR(inode->i_rdev);
+        unsigned int minor = MINOR(inode->i_rdev);
         #endif
+        printk("SNX_PAR_DUMP_PORT_INFO 0x%04x SNX_PPCLAIM 0x%04x\n", SNX_PAR_DUMP_PORT_INFO, SNX_PPCLAIM);
         printk("snx_pp_ioctl 0x%04x minor %d\n", cmd, minor);
         switch (cmd) {
         case SNX_PAR_DUMP_PORT_INFO:

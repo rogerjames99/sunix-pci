@@ -309,15 +309,6 @@ static int snx_register_device(int minor, struct snx_pp_struct *pp)
 }
 //#endif
 
-static unsigned int get_minor_device(unsigned long arg)
-{
-        struct snx_par_port_info snx_port_info;
-        memset(&snx_port_info, 0, (sizeof(struct snx_par_port_info)));
-        if (copy_from_user(&snx_port_info, (void *)arg, (sizeof(struct snx_par_port_info))))
-                return -EFAULT;
-        return snx_port_info.minor;
-}
-
 static enum ieee1284_phase snx_init_phase(int mode)
 {
         switch (mode & ~(IEEE1284_DEVICEID | IEEE1284_ADDR)) {
@@ -332,29 +323,27 @@ static enum ieee1284_phase snx_init_phase(int mode)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 36)
 static int snx_pp_ioctl(struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg)
 {
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 0))
-        unsigned int minor = iminor(inode);
-#else
-        unsigned int minor = MINOR(inode->i_rdev);
-#endif
-        struct snx_pp_struct *pp = file->private_data;
-        struct snx_parport *port;
-#if (LINUX_VERSION_CODE > KERNEL_VERSION(2, 4, 26))
-        void __user *argp = (void __user *)arg;
-#endif
 #else
 static long snx_pp_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 16, 0)
+        struct inode *inode = file->f_dentry->d_inode;
+#else
+        struct inode *inode = file->f_path.dentry->d_inode;
+#endif
+#endif
+
         struct snx_pp_struct *pp = file->private_data;
         struct snx_parport *port;
 #if (LINUX_VERSION_CODE > KERNEL_VERSION(2, 4, 26))
         void __user *argp = (void __user *)arg;
 #endif
-        unsigned int minor;
-        if (0 > (minor = get_minor_device(arg)))
-                return minor;
-#endif
 
+        #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 0))
+                unsigned int minor = iminor(inode);
+        #else
+                unsigned int minor = MINOR(inode->i_rdev);
+        #endif
         printk("snx_pp_ioctl 0x%04x minor %d\n", cmd, minor);
         switch (cmd) {
         case SNX_PAR_DUMP_PORT_INFO:

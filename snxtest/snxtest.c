@@ -1,12 +1,3 @@
-/*
- *
- *                      Port Information Dump Program
- *
- *				Copyright 2006 - 2011  SUNIX Co., Ltd. all right reserved
- *
- *                                                              Version: 1.2.3.1
- *                                                              Date: 2016/04/26
- */
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -29,35 +20,39 @@
 
 static int claim()
 {
-	char par_name[14] = "/dev/parport0";
-	int par_fd;
-	int i;
+    char par_name[14] = "/dev/parport0";
+    int par_fd;
+    int i;
 
-	for (i = 0; i < SNX_PAR_TOTAL_MAX; i++)
+    for (i = 0; i < SNX_PAR_TOTAL_MAX; i++)
+    {
+	par_name[12] = '0' + i;
+	printf("Trying %s\n", par_name);
+	par_fd = open(par_name, O_WRONLY);
+	if (par_fd > 0)
 	{
-		par_name[12] = '0' + i;
-
-		par_fd = open(par_name, O_WRONLY);
-
-    	if (par_fd > 0)
-    	{
-            if (0 > ioctl(par_fd, SNX_PPCLAIM))
-                return -1;
+	    printf("Trying SNX_PPCLAIM on %s\n", par_name);
+	    if (0 > ioctl(par_fd, SNX_PPCLAIM))
+		perror("SNX_PPCLAIM failed");
+	    else
+		printf("SNX_PPCLAIM success\n");
         }
-	}
-	return par_fd;
+	else
+            perror("open failed");
+    }
+    return par_fd;
 }
 
 int main(void)
 {
-	int par_fd = claim();
-	if (par_fd < 0)
-	{
+    int par_fd = claim();
+    if (par_fd < 0)
+    {
         printf("Fucked\n");
         return -1;
-	}
+    }
 
     sleep(120);
     close(par_fd);
- 	return 0;
+    return 0;
 }

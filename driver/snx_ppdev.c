@@ -56,7 +56,7 @@ static ssize_t snx_pp_read(struct file *file, char *buf, size_t count, loff_t *p
         int mode;
 
         if (!(pp->flags & SNX_PP_CLAIMED)) {
-                printk("SNX Warng: %x claim the port first\n", minor);
+                printk("snx_pp_read: %x claim the port first\n", minor);
                 return -EINVAL;
         }
 
@@ -169,7 +169,7 @@ static ssize_t snx_pp_write(struct file *file, const char *buf, size_t count, lo
         struct snx_parport *pport;
 
         if (!(pp->flags & SNX_PP_CLAIMED)) {
-                printk("SNX Warng: %x claim the port first\n", minor);
+                printk("snx_pp_write : %x claim the port first\n", minor);
                 return -EINVAL;
         }
 
@@ -353,10 +353,9 @@ static long snx_pp_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
         unsigned int minor;
         if (0 > (minor = get_minor_device(arg)))
             return minor;
-        minor = minor - 2;
 #endif
 
-        printk("snx_pp_ioctl %04x\n", cmd);
+        printk("snx_pp_ioctl 0x%04x minor %d\n", cmd, minor);
         switch (cmd) {
         case SNX_PAR_DUMP_PORT_INFO:
         {
@@ -432,7 +431,7 @@ static long snx_pp_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
         case SNX_PPEXCL:
         {
                 if (pp->pdev) {
-                        printk("SNX Warng: %x too late for SNX_PPEXCL; already registered\n", minor);
+                        printk("snx_pp_ioctl: %x too late for SNX_PPEXCL; already registered\n", minor);
                         if (pp->flags & SNX_PP_EXCL) {
                                 return 0;
                         }
@@ -594,7 +593,7 @@ static long snx_pp_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 
 
         if ((pp->flags & SNX_PP_CLAIMED) == 0) {
-                printk("SNX Warng: %x claim the port first\n", minor);
+                printk("snx_pp_ioctl: %x claim the port first\n", minor);
                 return -EINVAL;
         }
 
@@ -944,7 +943,7 @@ static int snx_pp_release(struct inode *inode, struct file *file)
 
         if (compat_negot) {
                 sunix_parport_negotiate(pp->pdev->port, IEEE1284_MODE_COMPAT);
-                printk("SNX Warng: %x negotiated back to compatibility mode because user-space forgot\n", minor);
+                printk("snx_pp_release: %x negotiated back to compatibility mode because user-space forgot\n", minor);
         }
 
 
@@ -960,7 +959,7 @@ static int snx_pp_release(struct inode *inode, struct file *file)
                 sunix_parport_release(pp->pdev);
 
                 if (compat_negot != 1) {
-                        printk("SNX Warng: %x released pardevice because user-space forgot\n", minor);
+                        printk("snx_pp_release: %x released pardevice because user-space forgot\n", minor);
                 }
         }
 

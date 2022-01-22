@@ -309,6 +309,15 @@ static int snx_register_device(int minor, struct snx_pp_struct *pp)
 }
 //#endif
 
+static unsigned int get_minor_device(unsigned int arg)
+{
+    struct snx_par_port_info snx_port_info;
+    memset(&snx_port_info, 0, (sizeof(struct snx_par_port_info)));
+    if (copy_from_user(&snx_port_info, (void *)arg, (sizeof(struct snx_par_port_info))))
+        return -EFAULT;
+    return snx_port_info.minor;
+}
+
 static enum ieee1284_phase snx_init_phase(int mode)
 {
         switch (mode & ~(IEEE1284_DEVICEID | IEEE1284_ADDR)) {
@@ -320,7 +329,7 @@ static enum ieee1284_phase snx_init_phase(int mode)
         return IEEE1284_PH_FWD_IDLE;
 }
 
-//#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 36)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 36)
 static int snx_pp_ioctl(struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg)
 {
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 0))
@@ -330,6 +339,16 @@ static int snx_pp_ioctl(struct inode *inode, struct file *file, unsigned int cmd
 #endif
         struct snx_pp_struct *pp = file->private_data;
         struct snx_parport *port;
+#else
+static long snx_pp_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+{
+        struct snx_pp_struct *pp = file->private_data;
+        struct snx_parport *port;
+        unsigned int minor;
+        if (0 > (minor = get_minor_device(arg)))
+            return minor;
+        minor = minor - 2;
+#endif
 
 #if (LINUX_VERSION_CODE > KERNEL_VERSION(2, 4, 26))
         void __user *argp = (void __user *)arg;
@@ -857,68 +876,6 @@ static int snx_pp_ioctl(struct inode *inode, struct file *file, unsigned int cmd
         return 0;
 }
 
-
-static long snx_dump_par_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
-{
-        unsigned int minor = 0;
-
-        switch (cmd) {
-        case SNX_PAR_DUMP_PORT_INFO:
-        {
-                struct snx_par_port_info snx_port_info;
-                struct sunix_par_port *sdn = NULL;
-
-                memset(&snx_port_info, 0, (sizeof(struct snx_par_port_info)));
-
-                if (copy_from_user(&snx_port_info, (void *)arg, (sizeof(struct snx_par_port_info)))) {
-                        return -EFAULT;
-                }
-
-                minor = snx_port_info.minor - 2;
-
-                if (minor >= 0) {
-                        sdn = (struct sunix_par_port *) &sunix_par_table[minor];
-
-                        memcpy(&snx_port_info.board_name_info[0], &sdn->pb_info.board_name[0], SNX_BOARDNAME_LENGTH);
-
-                        snx_port_info.bus_number_info = sdn->bus_number;
-                        snx_port_info.dev_number_info = sdn->dev_number;
-                        snx_port_info.port_info       = sdn->portnum + 2;
-                        snx_port_info.base_info       = sdn->base;
-                        snx_port_info.base_hi_info    = sdn->base_hi;
-                        snx_port_info.irq_info        = sdn->irq;
-
-                        if (copy_to_user((void *)arg, &snx_port_info, sizeof(struct snx_par_port_info))) {
-                                return -EFAULT;
-                        } else {
-                                return 0;
-                        }
-
-                } else {
-                        return -ENXIO;
-                }
-        }
-
-        case SNX_PAR_DUMP_DRIVER_VER:
-        {
-                char driver_ver[SNX_DRIVERVERSION_LENGTH];
-
-                memset(driver_ver, 0, (sizeof(char) * SNX_DRIVERVERSION_LENGTH));
-
-                memcpy(&driver_ver[0], SNX_DRIVER_VERSION, sizeof(SNX_DRIVER_VERSION));
-
-                if (copy_to_user((void *)arg, &driver_ver, (sizeof(char) * SNX_DRIVERVERSION_LENGTH))) {
-                        return -EFAULT;
-                } else {
-                        return 0;
-                }
-
-                break;
-        }
-        }
-        return 0;
-}
-
 static int snx_pp_open(struct inode *inode, struct file *file)
 {
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 0))
@@ -1040,7 +997,7 @@ static struct file_operations snx_pp_fops = {
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 36)
         .ioctl    = snx_pp_ioctl,
 #else
-        .unlocked_ioctl   = snx_dump_par_ioctl,
+        .unlocked_ioctl   = snx_pp_ioctl,
 #endif
         .open       = snx_pp_open,
         .release    = snx_pp_release,
@@ -1091,10 +1048,6 @@ static struct file_operations snx_pp_fops = {
    };
  #endif
  */
-
-
-
-
 
 #if (LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 17))
 static struct class *snx_ppdev_class;

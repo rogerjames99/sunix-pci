@@ -311,11 +311,11 @@ static int snx_register_device(int minor, struct snx_pp_struct *pp)
 
 static unsigned int get_minor_device(unsigned long arg)
 {
-    struct snx_par_port_info snx_port_info;
-    memset(&snx_port_info, 0, (sizeof(struct snx_par_port_info)));
-    if (copy_from_user(&snx_port_info, (void *)arg, (sizeof(struct snx_par_port_info))))
-        return -EFAULT;
-    return snx_port_info.minor;
+        struct snx_par_port_info snx_port_info;
+        memset(&snx_port_info, 0, (sizeof(struct snx_par_port_info)));
+        if (copy_from_user(&snx_port_info, (void *)arg, (sizeof(struct snx_par_port_info))))
+                return -EFAULT;
+        return snx_port_info.minor;
 }
 
 static enum ieee1284_phase snx_init_phase(int mode)
@@ -352,7 +352,7 @@ static long snx_pp_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 #endif
         unsigned int minor;
         if (0 > (minor = get_minor_device(arg)))
-            return minor;
+                return minor;
 #endif
 
         printk("snx_pp_ioctl 0x%04x minor %d\n", cmd, minor);
@@ -395,12 +395,13 @@ static long snx_pp_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
                 printk("SNX_PPCLAIM\n");
 
                 if (pp->flags & SNX_PP_CLAIMED) {
-                        printk("SNX Warning: %x you've already got it!\n", minor);
+                        printk("SNX_PPCLAIM: %x you've already got it!\n", minor);
                         return -EINVAL;
                 }
 
                 if (!pp->pdev) {
                         int err = snx_register_device(minor, pp);
+                        printk("SNX_PPCLAIM: snx_register_device failed: %d\n", err);
                         if (err) {
                                 return err;
                         }
@@ -408,6 +409,7 @@ static long snx_pp_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 
                 ret = sunix_parport_claim_or_block(pp->pdev);
                 if (ret < 0) {
+                        printk("SNX_PPCLAIM: sunix_parport_claim_or_block failed: %d\n", ret);
                         return ret;
                 }
 

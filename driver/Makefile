@@ -44,12 +44,12 @@ clean_local:
 	rm -f $(DRIVERNAME)
 	rm -f Module*
 	rm -f module*
-	rm -f /lib/modules/$(shell uname -r)/kernel/drivers/char/snx_golden.ko
-	rm -f /lib/modules/$(shell uname -r)/misc/snx_golden.ko
-	rm -f /lib/modules/$(shell uname -r)/kernel/drivers/char/snx_matrix.ko
-	rm -f /lib/modules/$(shell uname -r)/misc/snx_matrix.ko
-	rm -f /lib/modules/$(shell uname -r)/kernel/drivers/char/$(DRIVERNAME).ko
-	rm -f /lib/modules/$(shell uname -r)/misc/$(DRIVERNAME).ko
+	sudo rm -f /lib/modules/$(shell uname -r)/kernel/drivers/char/snx_golden.ko \
+		/lib/modules/$(shell uname -r)/misc/snx_golden.ko \
+		/lib/modules/$(shell uname -r)/kernel/drivers/char/snx_matrix.ko \
+		/lib/modules/$(shell uname -r)/misc/snx_matrix.ko \
+		/lib/modules/$(shell uname -r)/kernel/drivers/char/$(DRIVERNAME).ko \
+		/lib/modules/$(shell uname -r)/misc/$(DRIVERNAME).ko
 #endif
 
 
@@ -304,6 +304,3 @@ clean:
 
 
 endif
-
-
-

@@ -309,7 +309,7 @@ static int snx_register_device(int minor, struct snx_pp_struct *pp)
 }
 //#endif
 
-static unsigned int get_minor_device(unsigned int arg)
+static unsigned int get_minor_device(unsigned long arg)
 {
     struct snx_par_port_info snx_port_info;
     memset(&snx_port_info, 0, (sizeof(struct snx_par_port_info)));

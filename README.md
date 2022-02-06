@@ -1,4 +1,4 @@
-#sunix-pci
+# sunix-pci
 
 This repository contains a modified version of the official open source pci
 parallel port driver from Sunix Microsystems. The modifications allow the driver

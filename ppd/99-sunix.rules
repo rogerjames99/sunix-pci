@@ -1,0 +1,1 @@
+ATTR{device}=="0x1999", ATTR{vendor}=="0x1fd4", RUN+="/sbin/modprobe parport_low_level"

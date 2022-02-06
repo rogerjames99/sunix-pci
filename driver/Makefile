@@ -19,7 +19,8 @@ $(DRIVERNAME)-y := snx_main.o snx_devtable.o \
 				   snx_serial.o \
 				   snx_parallel.o snx_share.o snx_ieee1284.o snx_ieee1284_ops.o \
 				   snx_ppdev.o \
-				   snx_lp.o
+				   snx_lp.o \
+					 procfs.o
 else
 KDIR	:= /lib/modules/$(shell uname -r)/build
 PWD	:= $(shell pwd)
@@ -44,12 +45,12 @@ clean_local:
 	rm -f $(DRIVERNAME)
 	rm -f Module*
 	rm -f module*
-	rm -f /lib/modules/$(shell uname -r)/kernel/drivers/char/snx_golden.ko
-	rm -f /lib/modules/$(shell uname -r)/misc/snx_golden.ko
-	rm -f /lib/modules/$(shell uname -r)/kernel/drivers/char/snx_matrix.ko
-	rm -f /lib/modules/$(shell uname -r)/misc/snx_matrix.ko
-	rm -f /lib/modules/$(shell uname -r)/kernel/drivers/char/$(DRIVERNAME).ko
-	rm -f /lib/modules/$(shell uname -r)/misc/$(DRIVERNAME).ko
+	sudo rm -f /lib/modules/$(shell uname -r)/kernel/drivers/char/snx_golden.ko \
+		/lib/modules/$(shell uname -r)/misc/snx_golden.ko \
+		/lib/modules/$(shell uname -r)/kernel/drivers/char/snx_matrix.ko \
+		/lib/modules/$(shell uname -r)/misc/snx_matrix.ko \
+		/lib/modules/$(shell uname -r)/kernel/drivers/char/$(DRIVERNAME).ko \
+		/lib/modules/$(shell uname -r)/misc/$(DRIVERNAME).ko
 #endif
 
 
@@ -72,7 +73,8 @@ $(DRIVERNAME)-y := snx_main.o snx_devtable.o \
 				   snx_serial.o \
 				   snx_parallel.o snx_share.o snx_ieee1284.o snx_ieee1284_ops.o \
 				   snx_ppdev.o \
-				   snx_lp.o
+				   snx_lp.o \
+					 procfs.o
 else
 KDIR	:= /lib/modules/$(shell uname -r)/build
 PWD	:= $(shell pwd)
@@ -304,6 +306,3 @@ clean:
 
 
 endif
-
-
-

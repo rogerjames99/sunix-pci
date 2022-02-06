@@ -19,7 +19,8 @@ $(DRIVERNAME)-y := snx_main.o snx_devtable.o \
 				   snx_serial.o \
 				   snx_parallel.o snx_share.o snx_ieee1284.o snx_ieee1284_ops.o \
 				   snx_ppdev.o \
-				   snx_lp.o
+				   snx_lp.o \
+					 procfs.o
 else
 KDIR	:= /lib/modules/$(shell uname -r)/build
 PWD	:= $(shell pwd)
@@ -72,7 +73,8 @@ $(DRIVERNAME)-y := snx_main.o snx_devtable.o \
 				   snx_serial.o \
 				   snx_parallel.o snx_share.o snx_ieee1284.o snx_ieee1284_ops.o \
 				   snx_ppdev.o \
-				   snx_lp.o
+				   snx_lp.o \
+					 procfs.o
 else
 KDIR	:= /lib/modules/$(shell uname -r)/build
 PWD	:= $(shell pwd)

@@ -8,7 +8,7 @@ This is how I went about it.
 
 3. Use lspci --vvns nn:nn.n  (Use your boards domain id) to find the vendor code and device codes. These are the two 4 digit hexadecimal codes separated by a colon at the end of the first line of output. Further down you will find the boards IRQ and io port address. Depending on  how many ports your particular board has there will a different number of IO port regions. In my 1S1P board the correct one was Region 1.
 
-4. Add a file (I called mine sunix.conf) to /etc/modprobe containing the following lines.
+4. Add a file (I called mine sunix.conf) to /etc/modprobe containing the following lines. Substitute the correct io port address and irq for your board.  
 
    ```
    #LPC parport to PCI-E card
@@ -16,7 +16,7 @@ This is how I went about it.
    options parport_pc io=0xd050 irq=11,auto
    ```
 
-5. Add a file to /etc/udev/rules.d (I called mine 99-sunix.rules) with following line. 
+5. Add a file to /etc/udev/rules.d (I called mine 99-sunix.rules) with following line. Substitute the correct vendor and device codes for your board.
 
    ```
    ATTR{device}=="0x1999", ATTR{vendor}=="0x1fd4", RUN+="/sbin/modprobe parport_low_level"

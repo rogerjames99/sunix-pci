@@ -6,7 +6,7 @@ This is how I went about it.
 
 2. Use lspci to find the domain id of your device. It is the bit at the start of each line that looks like this nn:nn.n e.g. 02:00.0.
 
-3. Use lspci --vvns nn:nn.n  (Use your boards domain id) to find the vendor code and device codes. These are the two 4 digit hexadecimal codes separated by a colon at the end of the first line of output. Further down you will find the boards IRQ and io port address. Depending on  how many ports your particular board has there will a different number of IO port regions. In my 1S1P board the correct one was Region 1.
+3. Use lspci -vvns nn:nn.n  (Use your boards domain id) to find the vendor code and device codes. These are the two 4 digit hexadecimal codes separated by a colon at the end of the first line of output. Further down you will find the boards IRQ and io port address. Depending on  how many ports your particular board has there will a different number of IO port regions. In my 1S1P board the correct one was Region 1.
 
 4. Add a file (I called mine sunix.conf) to /etc/modprobe containing the following lines.
 

@@ -8,5 +8,4 @@ If you are not using the driver for driving a printer then I recommend you do no
 install either this driver or the the official sunix one and access the port via the
 standard linux ppd driver. This allows you to bit bang the lines individually. I have
 provided instructions for this and sample files in the ppd directory in this
-repository.
-
+repository. This is especially useful for people using LinuxCNC.
